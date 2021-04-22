@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="utf8" />
+  <style>
+    .parent {
+      display: table;
+    }
+
+    .child {
+      display: table-cell;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    /* just aesthetics */
+    .parent {
+      width: 90vw;
+      margin-top: 52px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    body {
+      display: flex;
+    }
+
+    video {
+      margin-top: 16px;
+    }
+  </style>
+
+</head>
+
+<body onload="baslat();videoGoster();setInterval(function(){veriCek()}, 300);baslat();"
+  style="background-color: #000000;">
+  <div class="parent">
+    <div id="child">
+
+      <video id="kamuSpotu" style="width:90vw;" autoplay>
+        <source id="vid_src" src="../static/tbmyo.mp4" type="video/mp4">
+      </video>
+
+      <audio id="alarm" style="display:none;" loop>
+        <source src="../static/siren1.wav" type="audio/wav">
+      </audio>
+
+      <div id="termometre" style="display:none;text-align: center;font: 56px Arial, sans-serif;color:#FFFFFF;display: flex;flex-direction: column;justify-content: center;align-items: center;text-align: center;">
+      </div>
+    </div>
+
+  </div>
+
+  <script type="text/javascript" src="../static/jquery.min.js"></script>
+  <script type="text/javascript">
+
+    var covid14 = document.getElementById("kamuSpotu");
+    var termometre = document.getElementById("termometre");
+    var alarmSesi = document.getElementById("alarm");
+
+    var videolar = ['../static/tbmyo.mp4'];
+    var videoSayi = 0;
+    var videoMax = 0;
+
+    covid14.addEventListener('ended', myHandler, false);
+    function myHandler() {
+      var kaynak = document.getElementById("vid_src");
+      videoSayi = videoSayi + 1;
+      if (videoSayi > videoMax) { videoSayi = 0; }
+      kaynak.src = videolar[videoSayi];
+      covid14.controls = false;
+      covid14.autoplay = true;
+      covid14.load();
+      covid14.play();
+    }
+
+    var olctu = 0;
+    function veriCek() {
+        $.getJSON("http://127.0.0.1:3636/durum/", function (data) {
+        console.log(parseFloat(data.sicaklik));
+
+        if (data.sicaklik != -1 && olctu == 0) {
+          if (parseFloat(data.sicaklik) > 38.5) {
+            olctu = 1;
+            yuksekSicaklik(data.sicaklik);
+          } else {
+            olctu = 1;
+            videoGizle(data.sicaklik);
+          }
+        }
+      })
+    }
+
+    function baslat() {
+      covid14.play();
+    }
+
+    function durdur() {
+      covid14.pause();
+    }
+
+    function yuksekSicaklik(yazi) {
+      durdur();
+      covid14.style = "display:none;width: 90vw;";
+      alarmSesi.play();
+      termometre.style = "background-color:red;display:flex;font: 56px Arial, sans-serif;color:#FFFFFF;flex-direction: column;justify-content: center;align-items: center;text-align: center;min-height: 90vh;"
+      termometre.innerHTML = "VÜCUT SICAKLIĞINIZ<h2>" + yazi + "°C</h2>EN YAKIN SAĞLIK KURULUŞUNA GİDİNİZ...";
+      setTimeout(function () { videoGoster() }, 5000);
+    }
+
+    function videoGizle(yazi) {
+      durdur();
+      covid14.style = "display:none;width: 90vw;";
+      termometre.style = "display:flex;font: 56px Arial, sans-serif;color:#FFFFFF;flex-direction: column;justify-content: center;align-items: center;text-align: center;min-height: 90vh;";
+      termometre.innerHTML = "VÜCUT SICAKLIĞINIZ<h2>" + yazi + "°C</h2>SAĞLIKLI GÜNLER DİLERİZ...";
+      setTimeout(function () { videoGoster() }, 3000);
+    }
+
+    function videoGoster() {
+      termometre.style = "display:none;font: 56px Arial, sans-serif;color:#FFFFFF;flex-direction: column;justify-content: center;align-items: center;text-align: center;min-height: 90vh;"
+      termometre.innerHTML = "";
+      covid14.style = "display:block;width: 90vw;"
+      baslat();
+      alarmSesi.pause();
+      olctu = 0;
+    }
+  </script>
+</body>
+
+</html>

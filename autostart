@@ -1,0 +1,8 @@
+@xscreensaver -no-splash
+@xset s off
+@xset -dpms
+@bash /usr/bin/calistir &
+@sleep 10
+@chromium-browser --noerrors --disable-session-crashed-bubble --disable-infobars --incognito --start-fullscreen http://0.0.0.0:3636/
+@sleep 2
+@point-rpi

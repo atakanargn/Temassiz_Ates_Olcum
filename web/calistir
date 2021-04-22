@@ -1,0 +1,2 @@
+cd /home/pi/web
+python3 main.py
